@@ -1,0 +1,73 @@
+Remocao do registro de chave "71"
+Registro removido! (112 bytes)
+Local: offset = 4346 bytes (0x10fa)
+
+Remocao do registro de chave "14"
+Registro removido! (84 bytes)
+Local: offset = 799 bytes (0x31f)
+
+Remocao do registro de chave "4"
+Registro removido! (50 bytes)
+Local: offset = 218 bytes (0xda)
+
+Remocao do registro de chave "27"
+Registro removido! (37 bytes)
+Local: offset = 1592 bytes (0x638)
+
+Insercao do registro de chave "173" (111 bytes)
+Tamanho do espaco reutilizado: 112 bytes
+Local: offset = 4346 bytes (0x10fa)
+
+Insercao do registro de chave "148" (40 bytes)
+Tamanho do espaco reutilizado: 84 bytes (Sobra de 42 bytes)
+Local: offset = 799 bytes (0x31f)
+
+Insercao do registro de chave "181" (35 bytes)
+Tamanho do espaco reutilizado: 50 bytes
+Local: offset = 218 bytes (0xda)
+
+Busca pelo registro de chave "22"
+22|Tetris|1984|Puzzle|Elorg|Electronika 60| (43 bytes)
+Local: offset = 1293 bytes (0x50d)
+
+Busca pelo registro de chave "148"
+148|Ms. Pac-Man|1982|Maze|Midway|Arcade| (40 bytes)
+Local: offset = 799 bytes (0x31f)
+
+Remocao do registro de chave "82"
+Registro removido! (90 bytes)
+Local: offset = 5157 bytes (0x1425)
+
+Remocao do registro de chave "42"
+Registro removido! (80 bytes)
+Local: offset = 2451 bytes (0x993)
+
+Remocao do registro de chave "1"
+Registro removido! (80 bytes)
+Local: offset = 4 bytes (0x4)
+
+Insercao do registro de chave "135" (97 bytes)
+Local: fim do arquivo
+
+Busca pelo registro de chave "181"
+181|Pac-Man|1980|Maze|Namco|Arcade| (35 bytes)
+Local: offset = 218 bytes (0xda)
+
+Busca pelo registro de chave "135"
+135|The Witcher III: Wild Hunt|2015|Action role-playing|CD Projekt|"PC, PlayStation 4, Xbox One"| (97 bytes)
+Local: offset = 6460 bytes (0x193c)
+
+Remocao do registro de chave "82"
+Erro: registro nao encontrado!
+
+Remocao do registro de chave "86"
+Registro removido! (79 bytes)
+Local: offset = 5516 bytes (0x158c)
+
+Remocao do registro de chave "31"
+Registro removido! (29 bytes)
+Local: offset = 1861 bytes (0x745)
+
+Insercao do registro de chave "202" (57 bytes)
+Tamanho do espaco reutilizado: 90 bytes (Sobra de 31 bytes)
+Local: offset = 5157 bytes (0x1425)

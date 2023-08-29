@@ -2,6 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+typedef struct {
+    long offset;
+    short int size;
+} LEDNode;
+
 void imprimirModoUso(char *nomePrograma) {
     fprintf(stderr, "Argumentos incorretos!\n");
     fprintf(stderr, "Modo de uso:\n");
@@ -9,11 +14,6 @@ void imprimirModoUso(char *nomePrograma) {
     fprintf(stderr, "$ %s -p\n", nomePrograma);
     exit(EXIT_FAILURE);
 }
-
-typedef struct {
-    long offset;
-    short int size;
-} LEDNode;
 
 void remocao(char *chave, char *nomeDoArquivo) {
     FILE *arquivo;
@@ -185,6 +185,7 @@ void executar_operacoes(char *nomeDoArquivo) {
     fclose(arquivoDeOperacoes);
 }
 
+//imprime os offsets excluídos
 void imprimir_led() {
     FILE *arquivo;
     char buffer[256];

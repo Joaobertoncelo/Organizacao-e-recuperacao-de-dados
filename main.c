@@ -10,6 +10,10 @@ void imprimirModoUso(char *nomePrograma) {
     exit(EXIT_FAILURE);
 }
 
+typedef struct {
+    long offset;
+    short int size;
+} LEDNode;
 
 void remocao(char *chave, char *nomeDoArquivo) {
     FILE *arquivo;
@@ -205,6 +209,10 @@ void imprimir_led() {
 }
 
 int main(int argc, char *argv[]) {
+    
+    LEDNode headLED;  // Cabeça da LED
+    int numLEDNodes;   // Número de nós na LED
+
     if (argc < 2) {
         imprimirModoUso(argv[0]);
     }

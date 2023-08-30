@@ -7,6 +7,20 @@ typedef struct {
     short int size;
 } LEDNode;
 
+int input(char str[], int size) {
+    int i = 0;
+    char c = getchar();
+    while (c != '\n') {
+        if (i < size-1) {
+        str[i] = c;
+        i++;
+        }
+        c = getchar();
+    }
+    str[i] = '\0';
+    return i;
+}
+
 void imprimirModoUso(char *nomePrograma) {
     fprintf(stderr, "Argumentos incorretos!\n");
     fprintf(stderr, "Modo de uso:\n");
@@ -155,7 +169,7 @@ void executar_operacoes(char *nomeDoArquivo) {
     char *chave;
 
     printf("Por favor, insira o nome do arquivo de operacoes: ");
-    fgets(nomeArquivoOperacoes, sizeof(nomeArquivoOperacoes), stdin);
+    input(nomeArquivoOperacoes, sizeof(nomeArquivoOperacoes));
     nomeArquivoOperacoes[strcspn(nomeArquivoOperacoes, "\r\n")] = '\0';
     
     arquivoDeOperacoes = fopen(nomeArquivoOperacoes, "rb");

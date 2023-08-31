@@ -45,24 +45,25 @@ void remocao(char *chave, char *nomeDoArquivo) {
     printf("Remocao do registro de chave %s\n", chave);
 
     while (fgets(buffer, sizeof(buffer), arquivo) != NULL) {
-        fseek(arquivo, 2, SEEK_CUR);
+        
         strcpy(linha, buffer);
 
         token = strtok(buffer, "|");
-
+        printf("Token atual: %s\n", token); // Saída de depuração
         if (strcmp(token, chave) == 0) {
-            printf("Registro removido! (%ld bytes)\n", strlen(linha) - 1);
-            printf("Local: offset = %ld bytes\n", ftell(arquivo) - strlen(linha) - 2);
+            printf("Registro removido! (%ld bytes)\n", strlen(linha)-1);
+            printf("Local: offset = %ld bytes\n", ftell(arquivo)-strlen(linha)-2);
 
-            fseek(arquivo, -strlen(linha) - 2, SEEK_CUR);
+            fseek(arquivo, -strlen(linha)-2, SEEK_CUR);
 
             buffer[0] = '*';
             buffer[1] = '|';
-            fwrite(buffer, sizeof(char), strlen(linha), arquivo);
+            fwrite(buffer, sizeof(char), strlen(linha) + 1, arquivo);
 
             fclose(arquivo);
             return;
         }
+        fseek(arquivo, 2, SEEK_CUR); // Pular para o próximo registro
     }
 
     printf("Erro: registro nao encontrado!\n");
@@ -217,9 +218,9 @@ void imprimir_led() {
             printf("Offset em bytes: %ld\n", byteOffset);
         }
         byteOffset += sizeof(buffer);
-        fseek(arquivo, byteOffset, SEEK_SET);
     }
 
+    fseek(arquivo, byteOffset, SEEK_SET);
     fclose(arquivo);
 }
 

@@ -37,7 +37,7 @@ void remocao(char *chave, char *nomeDoArquivo) {
         printf("Erro ao abrir o arquivo\n");
         exit(1);
     }
-
+    fseek(arquivo, 0, SEEK_SET);
     char buffer[256];
     char linha[256];
     char *token;
@@ -45,11 +45,11 @@ void remocao(char *chave, char *nomeDoArquivo) {
     printf("Remocao do registro de chave %s\n", chave);
 
     while (fgets(buffer, sizeof(buffer), arquivo) != NULL) {
-        
+        //printf("buffer atual: %s\n", buffer); // Saída de depuração
         strcpy(linha, buffer);
 
         token = strtok(buffer, "|");
-        printf("Token atual: %s\n", token); // Saída de depuração
+        //printf("Token atual: %s\n", token); // Saída de depuração
         if (strcmp(token, chave) == 0) {
             printf("Registro removido! (%ld bytes)\n", strlen(linha)-1);
             printf("Local: offset = %ld bytes\n", ftell(arquivo)-strlen(linha)-2);

@@ -10,8 +10,9 @@
 
 // Estrutura para um nó da árvore B
 typedef struct BTreeNode {
-    int keys[5 - 1];
-    struct BTreeNode* children[5];
+    int int_keys[ORDEM - 1];
+    char string_keys[ORDEM - 1][255];
+    struct BTreeNode* children[ORDEM];
     int num_keys;
     int leaf; // 1 se for folha, 0 se não for
 } BTreeNode;
@@ -53,7 +54,8 @@ void splitChild(BTreeNode *parent, int index) {
     // Mova metade das chaves e filhos para o novo filho
     newChild->num_keys = ORDEM / 2 - 1;
     for (int i = 0; i < ORDEM / 2 - 1; i++) {
-        newChild->keys[i] = child->keys[i + ORDEM / 2];
+        newChild->int_keys[i] = child->int_keys[i + ORDEM / 2];
+        strcpy(newChild->string_keys[i], child->string_keys[i + ORDEM / 2]);
     }
 
     if (!child->leaf) {
@@ -74,47 +76,48 @@ void splitChild(BTreeNode *parent, int index) {
 
     // Move a chave do meio do filho para o pai
     for (int i = parent->num_keys - 1; i > index; i--) {
-        parent->keys[i] = parent->keys[i - 1];
+        parent->int_keys[i] = parent->int_keys[i - 1];
+        strcpy(parent->string_keys[i], parent->string_keys[i - 1]);
     }
 
-    parent->keys[index] = child->keys[ORDEM / 2 - 1];
+    parent->int_keys[index] = child->int_keys[ORDEM / 2 - 1];
+    strcpy(parent->string_keys[index], child->string_keys[ORDEM / 2 - 1]);
 }
 
 // Função para inserir uma chave em um nó não cheio
-void insertNonFull(BTreeNode *node, int key) {
+void insertNonFull(BTreeNode *node, int int_key, const char *string_key) {
     int i = node->num_keys - 1;
 
     if (node->leaf) {
         // Nó é uma folha, insira a chave no lugar correto para manter a ordenação
-        while (i >= 0 && key < node->keys[i]) {
-            node->keys[i + 1] = node->keys[i];
+        while (i >= 0 && int_key < node->int_keys[i]) {
+            node->int_keys[i + 1] = node->int_keys[i];
+            strcpy(node->string_keys[i + 1], node->string_keys[i]);
             i--;
         }
-        node->keys[i + 1] = key;
+        node->int_keys[i + 1] = int_key;
+        strcpy(node->string_keys[i + 1], string_key);
         node->num_keys++;
     } else {
         // Encontre o filho apropriado para continuar a inserção
-        while (i >= 0 && key < node->keys[i]) {
+        while (i >= 0 && int_key < node->int_keys[i]) {
             i--;
         }
 
         i++;
         if (node->children[i]->num_keys == ORDEM - 1) {
-            // Nó filho está cheio, faça a divisão
             splitChild(node, i);
-
-            // Determine qual dos dois filhos recém-criados deve conter a nova chave
-            if (key > node->keys[i]) {
+            if (int_key > node->int_keys[i]) {
                 i++;
             }
         }
 
-        insertNonFull(node->children[i], key);
+        insertNonFull(node->children[i], int_key, string_key);
     }
 }
 
-// Função para adicionar um valor em um nó da árvore B
-void op_add(BTreeNode **node, int key) {
+// Função para inserir valores na árvore B
+void op_add(BTreeNode **node, int int_key, const char *string_key) {
     if ((*node)->num_keys == ORDEM - 1) {
         // A raiz está cheia, crie um novo nó raiz
         BTreeNode *newRoot = createNode();
@@ -123,87 +126,108 @@ void op_add(BTreeNode **node, int key) {
         *node = newRoot;
         splitChild(*node, 0);
     }
-
-    insertNonFull(*node, key);
+    insertNonFull(*node, int_key, string_key);
 }
+
+// Função para escrever os dados da árvore B em um arquivo
+void writeBTreeToFile(FILE *file, BTreeNode *node) {
+    if (node != NULL) {
+        // Escrever os dados do nó no arquivo
+        fwrite(node->int_keys, sizeof(int), node->num_keys, file);
+        for (int i = 0; i < node->num_keys; i++) {
+            fwrite(node->string_keys[i], sizeof(char), 255, file);
+        }
+
+        if (!node->leaf) {
+            // Recursivamente escrever os filhos no arquivo
+            for (int i = 0; i <= node->num_keys; i++) {
+                writeBTreeToFile(file, node->children[i]);
+            }
+        }
+    }
+}
+
 
 void insertValuesFromFile(BTreeNode **root, const char *filename) {
     FILE *file = fopen(filename, "r");
-    
+
     if (file == NULL) {
         printf("Erro ao abrir o arquivo %s.\n", filename);
         return;
     }
     printf("Sucesso ao abrir o arquivo %s.\n", filename);
-    
-    int value;
-    while (fread(&value, sizeof(int), 1, file) == 1) {
-        printf("Importar: %d\n", value);
-        op_add(&root, value);
+
+    int int_key;
+    char string_key[255];
+    // Ler todas as chaves do arquivo existente
+    while (fread(&int_key, sizeof(int_key), 1, file) == 1) {
+        fread(string_key, sizeof(string_key[0]), sizeof(string_key), file);
+        printf("Importar: %d %s\n", int_key, string_key);
+        op_add(root, int_key, string_key);
+    }
+    // Abrir o arquivo "BTree.dat" para escrever (ou criar um novo arquivo)
+    FILE *btree_file = fopen("BTree.dat", "wb");
+    if (btree_file == NULL) {
+        printf("Erro ao abrir o arquivo BTree.dat.\n");
+        return;
     }
 
-    // char buffer_chave[255];
-    // int valChave;
-    // // Ler todas as chaves do arquivo existente
-    // while (fscanf(file, " %s", buffer_chave) == 1) {
-    //     valChave = atoi(buffer_chave);
-    //     printf("Importar: %d\n", valChave);
-    //     op_add(root, valChave);
-    // }
-    // printf("Arquivo de entrada importado com sucesso.\n");
+    // Escrever os dados da árvore B no arquivo
+    writeBTreeToFile(btree_file, *root);
+
+    // Fechar o arquivo
+    fclose(btree_file);
+
+    printf("Arquivo BTree.dat atualizado com sucesso.\n");
     fclose(file);
 }
 
-// Função para criar uma árvore B a partir de um arquivo de entrada
-void createBTree(char *arquivo, BTreeNode **root) {
-    FILE *chaves;
-    chaves = fopen(arquivo, "r");
 
-    if (chaves == NULL) {
-        // O arquivo não existe, então crie um novo arquivo e adicione valores
-        chaves = fopen(arquivo, "w");
-        if (chaves == NULL) {
-            printf("Erro ao criar o arquivo de entrada.\n");
-            return;
-        }
-        printf("Arquivo de entrada criado com sucesso.\n");
-        fclose(chaves);
-    } else {
-        char buffer_chave[255];
-        int valChave;
-        // Ler todas as chaves do arquivo existente
-        while (fscanf(chaves, " %s", buffer_chave) == 1) {
-            valChave = atoi(buffer_chave);
-            printf("Importar: %d\n", valChave);
-            op_add(root, valChave);
-        }
-        printf("Arquivo de entrada importado com sucesso.\n");
-        fclose(chaves);
+// Função para criar uma árvore B a partir de um arquivo de entrada
+void createBTree(const char *arquivo, BTreeNode **root) {
+    FILE *dados;
+    dados = fopen(arquivo, "rb");
+
+    if (dados == NULL) {
+        printf("Erro ao abrir o arquivo de entrada.\n");
+        return;
     }
+
+    int int_key;
+    char string_key[255];
+
+    // Ler todas as chaves do arquivo existente
+    while (fread(&int_key, sizeof(int), 1, dados) == 1) {
+        fread(string_key, sizeof(char), 255, dados);
+        op_add(root, int_key, string_key);
+    }
+
+    printf("Arquivo de entrada importado com sucesso.\n");
+    fclose(dados);
 }
 
 
 // Função para realizar uma busca na árvore B
-void searchBTree(BTreeNode *node, int key) {
+void searchBTree(BTreeNode *node, int int_key, const char *string_key) {
     int i = 0;
-    while (i < node->num_keys && key > node->keys[i]) {
+    while (i < node->num_keys && (int_key > node->int_keys[i] || (int_key == node->int_keys[i] && strcmp(string_key, node->string_keys[i]) > 0))) {
         i++;
     }
 
-    if (i < node->num_keys && key == node->keys[i]) {
-        printf("Chave %d encontrada na árvore B.\n", key);
+    if (i < node->num_keys && int_key == node->int_keys[i] && strcmp(string_key, node->string_keys[i]) == 0) {
+        printf("Chave %d - %s encontrada na árvore B.\n", int_key, string_key);
         return;
     } else if (node->leaf) {
-        printf("Chave %d não encontrada na árvore B.\n", key);
+        printf("Chave %d - %s não encontrada na árvore B.\n", int_key, string_key);
         return;
     } else {
         // Recursivamente continue a busca nos filhos
-        searchBTree(node->children[i], key);
+        searchBTree(node->children[i], int_key, string_key);
     }
 }
 
-// Função para executar as operações de um arquivo de entrada
-void execBTree(BTreeNode *root, char *arquivo) {
+// Função para realizar as operações de um arquivo de entrada
+void execBTree(BTreeNode *root, const char *arquivo) {
     FILE *operacoes;
     operacoes = fopen(arquivo, "r+");
     printf("Executando operacoes do arquivo %s\n", arquivo);
@@ -213,15 +237,16 @@ void execBTree(BTreeNode *root, char *arquivo) {
     }
 
     char operacao;
-    int chave;
+    int int_key;
+    char string_key[255];
 
-    while (fscanf(operacoes, " %c %d", &operacao, &chave) == 2) {
+    while (fscanf(operacoes, " %c %d %s", &operacao, &int_key, string_key) == 3) {
         if (operacao == 'b' || operacao == 'B') {
             // Busca
-            searchBTree(root, chave);
+            searchBTree(root, int_key, string_key);
         } else if (operacao == 'i' || operacao == 'I') {
             // Inserção
-            op_add(&root, chave);
+            op_add(&root, int_key, string_key);
         } else {
             printf("Operacao desconhecida: %c\n", operacao);
         }
@@ -230,12 +255,13 @@ void execBTree(BTreeNode *root, char *arquivo) {
     fclose(operacoes);
 }
 
+// Função para imprimir a árvore B
 void printBTree(BTreeNode *node) {
     if (node != NULL) {
         int i;
         for (i = 0; i < node->num_keys; i++) {
             // Imprima a chave
-            printf("%d ", node->keys[i]);
+            printf("Nível %d: %d - %s\n", i, node->int_keys[i], node->string_keys[i]);
         }
 
         if (!node->leaf) {
@@ -246,6 +272,7 @@ void printBTree(BTreeNode *node) {
         }
     }
 }
+
 
 int main(int argc, char *argv[]){
     BTreeNode *root = createNode();

@@ -218,7 +218,7 @@ void searchBTree(BTreeNode *node, int int_key, const char *string_key) {
         printf("Chave %d - %s encontrada na árvore B.\n", int_key, string_key);
         return;
     } else if (node->leaf) {
-        printf("Chave %d - %s não encontrada na árvore B.\n", int_key, string_key);
+        printf("Chave %d - %s nao encontrada na árvore B.\n", int_key, string_key);
         return;
     } else {
         // Recursivamente continue a busca nos filhos
@@ -235,18 +235,28 @@ void execBTree(BTreeNode *root, const char *arquivo) {
         printf("Erro ao abrir o arquivo de operacoes.\n");
         return;
     }
-
-    char operacao;
     int int_key;
     char string_key[255];
 
-    while (fscanf(operacoes, " %c %d %s", &operacao, &int_key, string_key) == 3) {
+    char line[256];  // Suponha que as linhas têm até 255 caracteres (ajuste conforme necessário)
+
+    while (fgets(line, sizeof(line), operacoes) != NULL) {
+        char operacao = line[0];  // Obtém o primeiro caractere da linha
+
         if (operacao == 'b' || operacao == 'B') {
-            // Busca
-            searchBTree(root, int_key, string_key);
+            if (sscanf(line + 1, " %d", &int_key) == 1) {
+                // Busca
+                searchBTree(root, int_key, string_key);
+            } else {
+                printf("Formato inválido para busca na linha: %s", line);
+            }
         } else if (operacao == 'i' || operacao == 'I') {
-            // Inserção
-            op_add(&root, int_key, string_key);
+            if (sscanf(line + 1, " %d %s", &int_key, string_key) == 2) {
+                // Inserção
+                op_add(&root, int_key, string_key);
+            } else {
+                printf("Formato inválido para inserção na linha: %s", line);
+            }
         } else {
             printf("Operacao desconhecida: %c\n", operacao);
         }
